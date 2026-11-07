@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { Station, PlaybackState } from '../types/radio';
 
@@ -9,6 +9,8 @@ interface BottomPlayerProps {
   isFavorite: boolean;
   onTogglePlay: () => void;
   onToggleFavorite: (stationId: string) => void;
+  onNextStation: () => void;
+  onPrevStation: () => void;
 }
 
 export const BottomPlayer: React.FC<BottomPlayerProps> = ({
@@ -17,11 +19,92 @@ export const BottomPlayer: React.FC<BottomPlayerProps> = ({
   errorMessage,
   isFavorite,
   onTogglePlay,
-  onToggleFavorite
+  onToggleFavorite,
+  onNextStation,
+  onPrevStation
 }) => {
   const isPlaying = playbackState === 'playing';
   const isLoading = playbackState === 'loading';
   const isError = playbackState === 'error';
+
+  // State & interaction refs for the live vintage TUNING rotary dial
+  const [knobAngle, setKnobAngle] = useState<number>(0);
+  const pointerStartXRef = useRef<number | null>(null);
+  const hasDraggedRef = useRef<boolean>(false);
+
+  const triggerHaptic = () => {
+    try {
+      if ('vibrate' in navigator && typeof navigator.vibrate === 'function') {
+        navigator.vibrate(15);
+      }
+    } catch {
+      // Ignore if not supported
+    }
+  };
+
+  const handleNext = () => {
+    triggerHaptic();
+    setKnobAngle(prev => prev + 30);
+    onNextStation();
+  };
+
+  const handlePrev = () => {
+    triggerHaptic();
+    setKnobAngle(prev => prev - 30);
+    onPrevStation();
+  };
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    pointerStartXRef.current = e.clientX;
+    hasDraggedRef.current = false;
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // Ignore
+    }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (pointerStartXRef.current === null) return;
+    const deltaX = e.clientX - pointerStartXRef.current;
+    const DRAG_THRESHOLD = 25;
+
+    // Dragging right (> 25px) triggers onNextStation and rotates clockwise (+30deg)
+    // Dragging left (< -25px) triggers onPrevStation and rotates counter-clockwise (-30deg)
+    if (deltaX > DRAG_THRESHOLD) {
+      hasDraggedRef.current = true;
+      handleNext();
+      pointerStartXRef.current = e.clientX;
+    } else if (deltaX < -DRAG_THRESHOLD) {
+      hasDraggedRef.current = true;
+      handlePrev();
+      pointerStartXRef.current = e.clientX;
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
+    pointerStartXRef.current = null;
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      // Ignore
+    }
+  };
+
+  const handlePointerCancel = () => {
+    pointerStartXRef.current = null;
+    hasDraggedRef.current = false;
+  };
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (hasDraggedRef.current) {
+      // Drag gesture already triggered station step; suppress duplicate click
+      hasDraggedRef.current = false;
+      e.preventDefault();
+      return;
+    }
+    handleNext();
+  };
 
   // Compute a realistic frequency indicator position between 10% and 90%
   const needlePositionPercent = useMemo(() => {
@@ -186,15 +269,43 @@ export const BottomPlayer: React.FC<BottomPlayerProps> = ({
                   </button>
                 )}
 
-                {/* Vintage Tuning Knobs Graphic Accent */}
-                <div className="flex flex-col items-center justify-center pl-1">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#3b2b11] via-[#d4b068] to-[#241a0a] border border-[#1f1707] shadow flex items-center justify-center">
-                    <div className="w-6 h-6 rounded-full bg-[#1e1911] border border-amber-400/50"></div>
+                {/* Live Interactive Senior-Accessible Vintage Tuning Rotary Knob */}
+                <button
+                  type="button"
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  onPointerCancel={handlePointerCancel}
+                  onClick={handleClick}
+                  title="TUNING • החלף תחנה"
+                  aria-label="כוונון תחנה (TUNING) - לחצו או גררו להחלפת תחנה"
+                  className="flex flex-col items-center justify-center p-0.5 select-none touch-none cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-lg active:scale-95 transition-transform"
+                  data-purpose="tuning-rotary-knob"
+                >
+                  {/* Rotary Dial Wheel with Metallic Brass Bevel */}
+                  <div
+                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-[#2a1d0b] via-[#d4b068] to-[#1a1205] border-2 border-[#120d04] shadow-[0_3px_8px_rgba(0,0,0,0.65)] flex items-center justify-center relative transition-transform duration-300 ease-out"
+                    style={{ transform: `rotate(${knobAngle}deg)` }}
+                  >
+                    {/* Inner knurled dark core */}
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#18140f] border border-amber-400/70 shadow-inner flex items-center justify-center relative">
+                      {/* Visual Indicator Notch / Tuning Line */}
+                      <div className="w-1 h-3 sm:h-3.5 bg-amber-300 rounded-full absolute top-0.5 left-1/2 -translate-x-1/2 shadow-[0_0_5px_#f59e0b] border border-amber-500"></div>
+                      {/* Center Brass Cap */}
+                      <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-[#fde68a] to-[#785317] border border-stone-900 shadow-sm"></div>
+                    </div>
                   </div>
-                  <span className="text-[9px] font-extrabold text-[#4a3411] uppercase font-dial mt-0.5">
-                    TUNING
-                  </span>
-                </div>
+
+                  {/* Label & Senior Hint */}
+                  <div className="flex flex-col items-center mt-0.5 select-none pointer-events-none">
+                    <span className="text-[10px] sm:text-[11px] font-black text-[#3a2709] uppercase font-dial tracking-tight leading-none">
+                      TUNING
+                    </span>
+                    <span className="text-[8px] sm:text-[9px] font-extrabold text-[#785317] leading-none mt-0.5 whitespace-nowrap">
+                      החלף תחנה ⟳
+                    </span>
+                  </div>
+                </button>
               </div>
             </div>
           </div>

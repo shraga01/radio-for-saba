@@ -39,10 +39,10 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Anodized Metallic Speaker Grille Texture Area */}
         <div className="speaker-grille h-14 w-full rounded-md border-2 border-[#3d362c] flex items-center justify-center p-1 relative shadow-inner">
-          {/* Embossed Champagne-Brass Badge: הרדיו של אבא */}
+          {/* Embossed Champagne-Brass Badge: הרדיו של סבא יצחק */}
           <div className="metallic-brass rounded px-4 py-1.5 flex items-center gap-3 border border-[#ffe699] shadow-lg">
             <span className="text-[#302107] font-black text-xl tracking-tight leading-none drop-shadow-[0_1px_0_rgba(255,255,255,0.7)]">
-              📻 הרדיו של אבא
+              📻 הרדיו של סבא יצחק
             </span>
             <span className="text-[#593d0c] font-black text-[11px] uppercase tracking-widest border-s-2 border-[#593d0c]/40 ps-2 leading-none font-dial">
               TRANSISTOR • SOLID STATE

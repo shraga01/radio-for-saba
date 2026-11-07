@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { ActiveTab, Station } from './types/radio';
 import { CURATED_ISRAEL_STATIONS, CURATED_GREECE_STATIONS, DEFAULT_FAVORITE_IDS } from './data/curatedStations';
 import { getStations } from './services/radioApi';
@@ -106,6 +106,35 @@ export function App() {
     });
   };
 
+  // Next/Prev station stepping for the live vintage TUNING rotary knob
+  const handleNextStation = useCallback(() => {
+    const list = displayedStations.length > 0 ? displayedStations : (israelStations.length > 0 ? israelStations : CURATED_ISRAEL_STATIONS);
+    if (list.length === 0) return;
+    const currentIndex = currentStation ? list.findIndex(s => s.id === currentStation.id) : -1;
+    const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % list.length;
+    const target = list[nextIndex];
+    playStation(target, true);
+  }, [displayedStations, israelStations, currentStation, playStation]);
+
+  const handlePrevStation = useCallback(() => {
+    const list = displayedStations.length > 0 ? displayedStations : (israelStations.length > 0 ? israelStations : CURATED_ISRAEL_STATIONS);
+    if (list.length === 0) return;
+    const currentIndex = currentStation ? list.findIndex(s => s.id === currentStation.id) : -1;
+    const prevIndex = currentIndex === -1 ? list.length - 1 : (currentIndex - 1 + list.length) % list.length;
+    const target = list[prevIndex];
+    playStation(target, true);
+  }, [displayedStations, israelStations, currentStation, playStation]);
+
+  // Auto-scroll active station card smoothly into view when tuned via knob
+  useEffect(() => {
+    if (currentStation) {
+      const el = document.getElementById(`station-${currentStation.id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }, [currentStation]);
+
   return (
     <div
       className="w-full max-w-[480px] sm:max-w-xl min-h-screen bg-[#171513] border-x-[10px] sm:border-[10px] border-[#382113] shadow-[0_15px_50px_rgba(0,0,0,0.95)] flex flex-col relative pb-36 mx-auto"
@@ -182,6 +211,8 @@ export function App() {
         isFavorite={currentStation ? isFavorite(currentStation.id) : false}
         onTogglePlay={togglePlay}
         onToggleFavorite={toggleFavorite}
+        onNextStation={handleNextStation}
+        onPrevStation={handlePrevStation}
       />
     </div>
   );

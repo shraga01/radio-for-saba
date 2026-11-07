@@ -54,7 +54,7 @@ export function useAudioPlayer() {
     const meta = {
       title: station.name,
       artist: station.subtitle,
-      album: 'הרדיו של אבא'
+      album: 'הרדיו של סבא יצחק'
     };
 
     if ('mediaSession' in navigator && window.MediaMetadata) {
@@ -238,8 +238,8 @@ export function useAudioPlayer() {
   }, [cleanupStreams, syncMediaSessionState]);
 
   const playStation = useCallback(
-    (station: Station) => {
-      if (currentStation?.id === station.id) {
+    (station: Station, forcePlay = false) => {
+      if (currentStation?.id === station.id && !forcePlay) {
         if (playbackState === 'playing') {
           pause();
         } else if (playbackState === 'paused') {

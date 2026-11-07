@@ -28,6 +28,7 @@ export const StationCard: React.FC<StationCardProps> = ({
 
   return (
     <article
+      id={`station-${station.id}`}
       onClick={() => onPlay(station)}
       role="button"
       tabIndex={0}
