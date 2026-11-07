@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">הרדיו של אבא</string>
+    <string name="title_activity_main">הרדיו של אבא</string>
+    <string name="package_name">com.papasradio.app</string>
+    <string name="custom_url_scheme">com.papasradio.app</string>
+</resources>
