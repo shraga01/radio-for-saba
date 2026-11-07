@@ -23,6 +23,17 @@ export const BottomPlayer: React.FC<BottomPlayerProps> = ({
   const isLoading = playbackState === 'loading';
   const isError = playbackState === 'error';
 
+  const handleFavoriteClick = () => {
+    if (!currentStation) return;
+    if (isFavorite) {
+      if (window.confirm(`להסיר את ${currentStation.name} מהמועדפים?`)) {
+        onToggleFavorite(currentStation.id);
+      }
+    } else {
+      onToggleFavorite(currentStation.id);
+    }
+  };
+
   return (
     <aside
       className="fixed bottom-0 start-0 end-0 z-40 h-[125px] bg-[#0B1120] border-t-4 border-slate-700 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.6)] px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 select-none safe-pb"
@@ -91,7 +102,7 @@ export const BottomPlayer: React.FC<BottomPlayerProps> = ({
         {/* Favorite Button */}
         {currentStation && (
           <button
-            onClick={() => onToggleFavorite(currentStation.id)}
+            onClick={handleFavoriteClick}
             className={`h-[84px] px-3 sm:px-4 rounded-2xl flex flex-col items-center justify-center gap-1 font-bold text-xs sm:text-sm border-2 transition-all active:scale-95 ${
               isFavorite
                 ? 'bg-amber-500/20 border-amber-400 text-amber-300 ring-2 ring-amber-400/40'

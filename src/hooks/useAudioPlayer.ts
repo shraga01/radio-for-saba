@@ -8,7 +8,6 @@ const STALL_TIMEOUT_MS = 7000;
 const LAST_PLAYED_KEY = 'PAPAS_RADIO_LAST_PLAYED';
 
 export function useAudioPlayer() {
-  // Initialize from localStorage cleanly during first render
   const [currentStation, setCurrentStation] = useState<Station | null>(() => {
     try {
       const saved = localStorage.getItem(LAST_PLAYED_KEY);
@@ -28,7 +27,9 @@ export function useAudioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
   const stallTimeoutRef = useRef<number | null>(null);
+  const retryTimeoutRef = useRef<number | null>(null);
   const retryCountRef = useRef<number>(0);
+  const isPausedByUserOrSystemRef = useRef<boolean>(true);
   const currentStationRef = useRef<Station | null>(currentStation);
 
   useEffect(() => {
@@ -39,6 +40,13 @@ export function useAudioPlayer() {
     if (stallTimeoutRef.current !== null) {
       window.clearTimeout(stallTimeoutRef.current);
       stallTimeoutRef.current = null;
+    }
+  }, []);
+
+  const clearRetryTimer = useCallback(() => {
+    if (retryTimeoutRef.current !== null) {
+      window.clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
     }
   }, []);
 
@@ -60,7 +68,7 @@ export function useAudioPlayer() {
     try {
       await MediaSession.setMetadata(meta);
     } catch {
-      // Not on native device or plugin not ready
+      // Ignore
     }
   }, []);
 
@@ -82,6 +90,7 @@ export function useAudioPlayer() {
 
   const cleanupStreams = useCallback(() => {
     clearStallTimer();
+    clearRetryTimer();
     if (hlsRef.current) {
       hlsRef.current.destroy();
       hlsRef.current = null;
@@ -91,12 +100,21 @@ export function useAudioPlayer() {
       audioRef.current.removeAttribute('src');
       audioRef.current.load();
     }
-  }, [clearStallTimer]);
+  }, [clearStallTimer, clearRetryTimer]);
 
   const handleStreamError = useCallback(() => {
     clearStallTimer();
-    const station = currentStationRef.current;
+    clearRetryTimer();
 
+    // PROTECTION: If stream is paused by user, incoming phone call, or system audio focus loss,
+    // NEVER treat it as an error or trigger an auto-retry loop!
+    if (isPausedByUserOrSystemRef.current || audioRef.current?.paused) {
+      setPlaybackState('paused');
+      syncMediaSessionState('paused');
+      return;
+    }
+
+    const station = currentStationRef.current;
     if (!station) {
       setPlaybackState('idle');
       return;
@@ -108,8 +126,11 @@ export function useAudioPlayer() {
       setErrorMessage(`טוען מחדש (ניסיון ${retryCountRef.current} מתוך ${MAX_AUTO_RETRIES})...`);
 
       const tryBackup = retryCountRef.current === 1 && !!station.backupStreamUrl;
-      setTimeout(() => {
-        startStream(station, tryBackup);
+      retryTimeoutRef.current = window.setTimeout(() => {
+        // Double check not paused before executing retry
+        if (!isPausedByUserOrSystemRef.current && !audioRef.current?.paused) {
+          startStream(station, tryBackup);
+        }
       }, 1000);
     } else {
       cleanupStreams();
@@ -118,10 +139,13 @@ export function useAudioPlayer() {
       syncMediaSessionState('none');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clearStallTimer, cleanupStreams, syncMediaSessionState]);
+  }, [clearStallTimer, clearRetryTimer, cleanupStreams, syncMediaSessionState]);
 
   const startStallTimer = useCallback(() => {
     clearStallTimer();
+    if (isPausedByUserOrSystemRef.current || audioRef.current?.paused) {
+      return;
+    }
     stallTimeoutRef.current = window.setTimeout(() => {
       handleStreamError();
     }, STALL_TIMEOUT_MS);
@@ -133,6 +157,7 @@ export function useAudioPlayer() {
       const audio = audioRef.current;
       if (!audio) return;
 
+      isPausedByUserOrSystemRef.current = false;
       setPlaybackState('loading');
       setErrorMessage(null);
       startStallTimer();
@@ -154,7 +179,9 @@ export function useAudioPlayer() {
         hls.attachMedia(audio);
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          audio.play().catch(handleStreamError);
+          if (!isPausedByUserOrSystemRef.current) {
+            audio.play().catch(handleStreamError);
+          }
         });
 
         hls.on(Hls.Events.ERROR, (_event, data) => {
@@ -183,20 +210,27 @@ export function useAudioPlayer() {
 
   const resume = useCallback(() => {
     if (audioRef.current && currentStationRef.current) {
+      isPausedByUserOrSystemRef.current = false;
       setPlaybackState('loading');
+      setErrorMessage(null);
+      startStallTimer();
       audioRef.current.play().catch(handleStreamError);
     }
-  }, [handleStreamError]);
+  }, [handleStreamError, startStallTimer]);
 
   const pause = useCallback(() => {
+    isPausedByUserOrSystemRef.current = true;
+    clearStallTimer();
+    clearRetryTimer();
     if (audioRef.current) {
       audioRef.current.pause();
-      setPlaybackState('paused');
-      syncMediaSessionState('paused');
     }
-  }, [syncMediaSessionState]);
+    setPlaybackState('paused');
+    syncMediaSessionState('paused');
+  }, [clearStallTimer, clearRetryTimer, syncMediaSessionState]);
 
   const stop = useCallback(() => {
+    isPausedByUserOrSystemRef.current = true;
     cleanupStreams();
     setPlaybackState('idle');
     setErrorMessage(null);
@@ -251,14 +285,22 @@ export function useAudioPlayer() {
 
     const onPlaying = () => {
       clearStallTimer();
+      clearRetryTimer();
+      isPausedByUserOrSystemRef.current = false;
       retryCountRef.current = 0;
       setPlaybackState('playing');
       setErrorMessage(null);
       syncMediaSessionState('playing');
     };
 
+    // CRITICAL AUDIO FOCUS / PHONE CALL EVENT:
+    // When incoming phone call arrives or another app claims audio focus,
+    // Android pauses this audio element natively.
     const onPause = () => {
-      if (audio.currentTime === 0 && audio.paused) {
+      clearStallTimer();
+      clearRetryTimer();
+      isPausedByUserOrSystemRef.current = true;
+      if (audio.currentTime === 0 && audio.paused && !currentStationRef.current) {
         // Idle/stopped
       } else {
         setPlaybackState('paused');
@@ -267,12 +309,17 @@ export function useAudioPlayer() {
     };
 
     const onWaiting = () => {
+      if (isPausedByUserOrSystemRef.current || audio.paused) {
+        return; // Do not treat paused buffering as stall
+      }
       setPlaybackState(prev => (prev === 'playing' ? 'loading' : prev));
       startStallTimer();
     };
 
     const onError = () => {
-      handleStreamError();
+      if (!isPausedByUserOrSystemRef.current && !audio.paused) {
+        handleStreamError();
+      }
     };
 
     audio.addEventListener('playing', onPlaying);
@@ -301,6 +348,7 @@ export function useAudioPlayer() {
 
     return () => {
       clearStallTimer();
+      clearRetryTimer();
       audio.removeEventListener('playing', onPlaying);
       audio.removeEventListener('pause', onPause);
       audio.removeEventListener('waiting', onWaiting);
@@ -314,6 +362,7 @@ export function useAudioPlayer() {
     };
   }, [
     clearStallTimer,
+    clearRetryTimer,
     startStallTimer,
     syncMediaSessionState,
     handleStreamError,

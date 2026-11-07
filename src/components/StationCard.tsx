@@ -7,6 +7,7 @@ interface StationCardProps {
   isPlaying: boolean;
   playbackState: PlaybackState;
   isFavorite: boolean;
+  isFavoritesTab?: boolean;
   onPlay: (station: Station) => void;
   onToggleFavorite: (stationId: string) => void;
 }
@@ -16,6 +17,7 @@ export const StationCard: React.FC<StationCardProps> = ({
   isPlaying,
   playbackState,
   isFavorite,
+  isFavoritesTab = false,
   onPlay,
   onToggleFavorite
 }) => {
@@ -63,6 +65,11 @@ export const StationCard: React.FC<StationCardProps> = ({
               מומלץ
             </span>
           )}
+          {isFavoritesTab && (
+            <span className="text-xs px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-bold border border-amber-400/40">
+              שמור במסך הבית
+            </span>
+          )}
         </div>
 
         {/* Primary Station Name */}
@@ -82,7 +89,7 @@ export const StationCard: React.FC<StationCardProps> = ({
         )}
       </div>
 
-      {/* Left side: Action Buttons (Play Indicator + Favorite Toggle) */}
+      {/* Left side: Action Buttons (Play Indicator + Favorite Protection) */}
       <div className="flex items-center gap-2 flex-shrink-0">
         {/* Play / State Beacon Button */}
         <div
@@ -104,26 +111,37 @@ export const StationCard: React.FC<StationCardProps> = ({
           )}
         </div>
 
-        {/* Giant Favorite Button */}
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleFavorite(station.id);
-          }}
-          className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center transition-all active:scale-90 border-2 ${
-            isFavorite
-              ? 'bg-amber-500/20 border-amber-400 text-amber-400 shadow-sm'
-              : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:text-amber-300 hover:border-slate-500'
-          }`}
-          aria-label={isFavorite ? `הסר את ${station.name} מהמועדפים` : `הוסף את ${station.name} למועדפים`}
-        >
-          <Star
-            size={32}
-            strokeWidth={2.5}
-            className={isFavorite ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}
-          />
-        </button>
+        {/* Favorite Indicator/Button:
+            On the Favorites tab: Non-clickable protective gold badge to prevent senior accidental removal!
+            On Greece/Israel tabs: Clickable giant button to add/remove. */}
+        {isFavoritesTab ? (
+          <div
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center bg-amber-500/15 border-2 border-amber-400/40 text-amber-400 pointer-events-none shadow-inner"
+            title="תחנה מועדפת שמורה"
+          >
+            <Star size={30} className="fill-amber-400 text-amber-400" />
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFavorite(station.id);
+            }}
+            className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center transition-all active:scale-90 border-2 ${
+              isFavorite
+                ? 'bg-amber-500/20 border-amber-400 text-amber-400 shadow-sm'
+                : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:text-amber-300 hover:border-slate-500'
+            }`}
+            aria-label={isFavorite ? `הסר את ${station.name} מהמועדפים` : `הוסף את ${station.name} למועדפים`}
+          >
+            <Star
+              size={32}
+              strokeWidth={2.5}
+              className={isFavorite ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}
+            />
+          </button>
+        )}
       </div>
     </div>
   );

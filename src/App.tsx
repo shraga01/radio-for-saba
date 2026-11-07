@@ -176,6 +176,7 @@ export function App() {
                 isPlaying={currentStation?.id === station.id}
                 playbackState={playbackState}
                 isFavorite={isFavorite(station.id)}
+                isFavoritesTab={activeTab === 'favorites'}
                 onPlay={playStation}
                 onToggleFavorite={toggleFavorite}
               />
