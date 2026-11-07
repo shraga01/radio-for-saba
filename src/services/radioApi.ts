@@ -29,10 +29,45 @@ interface RadioBrowserStation {
   clickcount: number;
 }
 
+// Strict Greek Music Filter (Applied ONLY to countrycode === 'GR')
+const GREEK_REJECT_TERMS = [
+  'athens deejay', 'mad radio', 'red 96', 'rock fm', 'rebel', 'kiss', 'en lefko', 'pepper', 'best 92',
+  'galaxy', 'love radio', 'music 89', 'hit 88', 'zoo 90', 'imagine', 'republic', 'offradio', 'skai',
+  'real fm', 'parapolitika', 'bwin', 'sport', 'era spor', 'rock', 'metal', 'punk', 'indie', 'alternative',
+  'hiphop', 'rap', 'rnb', 'electronic', 'house', 'techno', 'trance', 'dance', 'club', 'jazz', 'blues',
+  'classical', 'english', 'international', '80s', '90s', 'news', 'talk'
+];
+
+const GREEK_ACCEPT_TERMS = [
+  'greek', 'ellinika', 'ellhnika', 'laika', 'laiko', 'rebetiko', 'rempetiko', 'entechno', 'entexno',
+  'dimotika', 'paradosiaka', 'kritika', 'pontiaka', 'nisiotika', 'folk',
+  'λαϊκ', 'ελληνικ', 'ρεμπέט', 'έντεχν', 'παραδοσιακ', 'δημοτικ'
+];
+
+function isAuthenticGreekMusicStation(station: RadioBrowserStation): boolean {
+  const text = (station.name + ' ' + (station.tags || '')).toLowerCase();
+
+  // Reject foreign music, international hits, and talk/news stations
+  for (const term of GREEK_REJECT_TERMS) {
+    if (text.includes(term)) {
+      return false;
+    }
+  }
+
+  // Keep only if explicitly Greek music/folk/laika/hits
+  for (const term of GREEK_ACCEPT_TERMS) {
+    if (text.includes(term)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 // Map tags or name to relevant category
 function determineCategory(tags: string, name: string, country: StationCountry): string {
   const text = (tags + ' ' + name).toLowerCase();
-  
+
   if (country === 'IL') {
     if (text.includes('news') || text.includes('חדשות') || text.includes('talk') || text.includes('אקטואליה')) {
       return 'news';
@@ -49,7 +84,7 @@ function determineCategory(tags: string, name: string, country: StationCountry):
     if (text.includes('pop') || text.includes('hits') || text.includes('top 40') || text.includes('dance') || text.includes('mainstream')) {
       return 'hits';
     }
-    if (text.includes('entechno') || text.includes('έντεχνο') || text.includes('classic') || text.includes('oldies') || text.includes('retro') || text.includes('ballads')) {
+    if (text.includes('entechno') || text.includes('έντεχנו') || text.includes('classic') || text.includes('oldies') || text.includes('retro') || text.includes('ballads')) {
       return 'classics';
     }
     return 'hits';
@@ -70,7 +105,7 @@ function generateSubtitle(station: RadioBrowserStation, country: StationCountry)
   if (country === 'IL') {
     return 'תחנת רדיו ישראלית פופולרית';
   }
-  return 'רדיו יווני פופולרי';
+  return 'רדיו מוזיקה יוונית';
 }
 
 // Check if a station is already present in curated list to prevent duplicates
@@ -93,10 +128,12 @@ function isDuplicate(apiStation: RadioBrowserStation, curatedList: Station[]): b
 
 // Fetch with mirror fallback
 async function fetchStationsFromMirrors(countryCode: StationCountry): Promise<RadioBrowserStation[]> {
+  const limit = countryCode === 'GR' ? 100 : 50;
+
   for (const server of API_SERVERS) {
     try {
-      const url = `${server}/json/stations/search?countrycode=${countryCode}&hidebroken=true&order=clickcount&reverse=true&limit=50`;
-      
+      const url = `${server}/json/stations/search?countrycode=${countryCode}&hidebroken=true&order=clickcount&reverse=true&limit=${limit}`;
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 6000);
 
@@ -123,7 +160,8 @@ async function fetchStationsFromMirrors(countryCode: StationCountry): Promise<Ra
 }
 
 export async function getStations(country: StationCountry): Promise<Station[]> {
-  const cacheKey = `PAPAS_RADIO_STATIONS_${country}_V2`;
+  // Bump cache key to V3 for fresh filtered Greek stations
+  const cacheKey = `PAPAS_RADIO_STATIONS_${country}_V3`;
   const curated = country === 'IL' ? CURATED_ISRAEL_STATIONS : CURATED_GREECE_STATIONS;
 
   // 1. Check local storage cache
@@ -151,6 +189,12 @@ export async function getStations(country: StationCountry): Promise<Station[]> {
       const streamUrl = s.url_resolved || s.url;
       if (!streamUrl) continue;
       if (isDuplicate(s, curated)) continue;
+
+      // CRITICAL: Apply authentic Greek music filter ONLY to Greece stations
+      // Israeli stations remain 100% UNTOUCHED!
+      if (country === 'GR' && !isAuthenticGreekMusicStation(s)) {
+        continue;
+      }
 
       const isHls = s.hls === 1 || streamUrl.includes('.m3u8');
 

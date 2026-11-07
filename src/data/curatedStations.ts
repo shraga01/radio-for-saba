@@ -260,13 +260,13 @@ export const CURATED_GREECE_STATIONS: Station[] = [
     clickcount: 89988
   },
   {
-    id: 'gr-skai',
-    name: 'סקאי (Skai 100.3)',
-    originalName: 'SKAI 100.3 Athens',
-    subtitle: 'רדיו אתונה – חדשות, שיחות ומוזיקה',
-    streamUrl: 'https://skai.live24.gr/skai1003',
+    id: 'gr-mousikos',
+    name: 'מוזיקוס (Mousikos 98.6)',
+    originalName: 'Mousikos 98.6 Athens',
+    subtitle: 'זמר יווני, בלדות ומוזיקה יוונית מובחרת',
+    streamUrl: 'https://netradio.live24.gr/mousikos986',
     country: 'GR',
-    category: 'hits',
+    category: 'classics',
     isCurated: true,
     clickcount: 89987
   }
@@ -289,5 +289,5 @@ export const DEFAULT_FAVORITE_IDS: string[] = [
   'gr-derti',
   'gr-melodia',
   'gr-menta',
-  'gr-skai'
+  'gr-mousikos'
 ];
