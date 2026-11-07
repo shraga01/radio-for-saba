@@ -1,5 +1,5 @@
-import React from 'react';
-import { Play, Pause, Loader2, Star, AlertCircle, Volume2 } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Loader2 } from 'lucide-react';
 import type { Station, PlaybackState } from '../types/radio';
 
 interface BottomPlayerProps {
@@ -23,10 +23,30 @@ export const BottomPlayer: React.FC<BottomPlayerProps> = ({
   const isLoading = playbackState === 'loading';
   const isError = playbackState === 'error';
 
+  // Compute a realistic frequency indicator position between 10% and 90%
+  const needlePositionPercent = useMemo(() => {
+    if (!currentStation) return 50;
+    const name = currentStation.name + ' ' + (currentStation.originalName || '');
+    const match = name.match(/(\d{2,3}(?:\.\d)?)\s*(?:FM|fm)?/);
+    if (match) {
+      const freq = parseFloat(match[1]);
+      if (freq >= 87 && freq <= 108) {
+        // Map 87.5-108 MHz to 10% - 90%
+        return Math.min(90, Math.max(10, ((freq - 87.5) / (108 - 87.5)) * 80 + 10));
+      }
+    }
+    // Fallback hash
+    let hash = 0;
+    for (let i = 0; i < currentStation.id.length; i++) {
+      hash = (hash * 31 + currentStation.id.charCodeAt(i)) % 80;
+    }
+    return 10 + hash;
+  }, [currentStation]);
+
   const handleFavoriteClick = () => {
     if (!currentStation) return;
     if (isFavorite) {
-      if (window.confirm(`להסיר את ${currentStation.name} מהמועדפים?`)) {
+      if (window.confirm(`האם להסיר את ${currentStation.name} מרשימת המועדפים?`)) {
         onToggleFavorite(currentStation.id);
       }
     } else {
@@ -35,141 +55,151 @@ export const BottomPlayer: React.FC<BottomPlayerProps> = ({
   };
 
   return (
-    <aside
-      className="fixed bottom-0 start-0 end-0 z-40 h-[125px] bg-[#1C1917] border-t-4 border-stone-600/90 shadow-[0_-12px_30px_rgba(0,0,0,0.85)] px-2.5 sm:px-5 flex items-center justify-between gap-2 sm:gap-4 select-none safe-pb"
-      aria-label="לוח כוונון ותחנה פעילה (Analog Radio Tuner)"
+    <footer
+      className="fixed bottom-0 start-0 end-0 z-50 bg-[#181614] border-t-4 border-[#a68643] shadow-[0_-10px_35px_rgba(0,0,0,0.9)] px-2 sm:px-4 py-2 safe-pb flex justify-center"
+      data-purpose="analog-player-dock"
     >
-      {/* Right side in RTL: Backlit Analog Radio Tuner Window */}
-      <div className="flex-1 min-w-0 h-[96px] bg-[#FEF3C7] rounded-xl border-3 border-stone-900 shadow-[inset_0_3px_8px_rgba(0,0,0,0.4)] px-3 py-1.5 flex flex-col justify-between relative overflow-hidden">
-        {/* Subtle Decorative Radio Frequency Dial Scale */}
-        <div className="flex items-center justify-between border-b border-stone-400/80 pb-0.5 text-[11px] font-mono font-black text-stone-700 select-none">
-          <span className="tracking-widest">FM 88</span>
-          <span className="opacity-70">92</span>
-          <span className="opacity-70">96</span>
-          <span className="text-red-700 font-extrabold scale-110">100</span>
-          <span className="opacity-70">104</span>
-          <span className="tracking-widest">108 MHz</span>
-        </div>
-
-        {/* Vintage Red Tuning Needle Overlay (Visible when playing/tuning) */}
-        {(isPlaying || isLoading) && (
-          <div className="absolute top-0 bottom-0 start-[48%] w-0.5 bg-red-600/90 shadow-[0_0_4px_rgba(220,38,38,0.8)] pointer-events-none z-10 animate-pulse"></div>
-        )}
-
-        {/* Station Name & Status inside Backlit Glass (High Contrast Charcoal #111827 for Senior Eyes) */}
-        <div className="min-w-0 pr-0.5 my-auto">
-          {currentStation ? (
-            <>
-              <h2 className="text-[21px] sm:text-[25px] font-black text-stone-950 leading-tight truncate tracking-tight">
-                {currentStation.name}
-              </h2>
-
-              <div className="flex items-center gap-2 mt-0.5">
-                {isPlaying && (
-                  <span className="flex items-center gap-1 text-emerald-800 font-black text-sm sm:text-base">
-                    <Volume2 size={18} strokeWidth={3} className="text-emerald-700 animate-pulse" />
-                    <span>מנגן כעת בשידור חי</span>
-                  </span>
-                )}
-
-                {isLoading && (
-                  <span className="flex items-center gap-1 text-amber-800 font-black text-sm sm:text-base">
-                    <Loader2 size={18} className="animate-spin text-amber-700" />
-                    <span>{errorMessage || 'מכוון תדר שידור...'}</span>
-                  </span>
-                )}
-
-                {playbackState === 'paused' && (
-                  <span className="flex items-center gap-1.5 text-stone-700 font-extrabold text-sm sm:text-base">
-                    <span className="w-2.5 h-2.5 rounded-full bg-stone-600"></span>
-                    <span>מושהה (לחץ על כפתור נגן)</span>
-                  </span>
-                )}
-
-                {isError && (
-                  <span className="flex items-center gap-1 text-red-800 font-black text-xs sm:text-sm">
-                    <AlertCircle size={18} className="text-red-700 flex-shrink-0" />
-                    <span className="truncate">{errorMessage || 'התחנה לא זמינה כרגע'}</span>
-                  </span>
-                )}
-
-                {playbackState === 'idle' && (
-                  <span className="text-stone-700 font-bold text-sm sm:text-base">
-                    לחץ על כפתור נגן להתחלת שידור
-                  </span>
-                )}
+      <div className="w-full max-w-[480px] sm:max-w-xl">
+        {/* Brass Frame Bezel around Tuner Window */}
+        <div className="p-1 rounded-xl bg-gradient-to-r from-[#947437] via-[#f7e3a6] to-[#80632a] shadow-md">
+          {/* Recessed Backlit Tungsten Cream/Amber Dial Window */}
+          <div className="tuner-window rounded-lg p-2.5 flex flex-col justify-between h-[126px]">
+            {/* Analog Horizontal FM Frequency Ruler Scale */}
+            <div className="relative w-full border-b border-[#735118]/40 pb-1 pt-0.5">
+              {/* Scale Markings and Frequencies (88 to 108 MHz) */}
+              <div className="flex justify-between items-end text-[#4a320b] font-dial text-[11px] font-bold px-1 select-none">
+                <span>88</span>
+                <span className="hidden sm:inline opacity-50">|</span>
+                <span>92</span>
+                <span className="hidden sm:inline opacity-50">|</span>
+                <span>96</span>
+                <span className="hidden sm:inline opacity-50">|</span>
+                <span className="text-[#8c1d18] font-black scale-110">100</span>
+                <span className="hidden sm:inline opacity-50">|</span>
+                <span className="text-red-700 font-extrabold">102.2</span>
+                <span className="hidden sm:inline opacity-50">|</span>
+                <span>104</span>
+                <span className="hidden sm:inline opacity-50">|</span>
+                <span>108 <span className="text-[9px]">MHz</span></span>
               </div>
-            </>
-          ) : (
-            <div>
-              <h2 className="text-lg sm:text-xl font-black text-stone-900 leading-tight">
-                הרדיו מוכן לקליטה
-              </h2>
-              <p className="text-xs sm:text-sm font-bold text-stone-700">
-                בחר תחנה מהלחצנים למעלה להאזנה מיידית
-              </p>
+
+              {/* Dial Tick Marks Line */}
+              <div className="h-2 w-full mt-1 flex justify-between items-end px-1 opacity-70">
+                <div className="h-2 w-0.5 bg-[#4a320b]"></div>
+                <div className="h-1 w-0.5 bg-[#4a320b]"></div>
+                <div className="h-2 w-0.5 bg-[#4a320b]"></div>
+                <div className="h-1 w-0.5 bg-[#4a320b]"></div>
+                <div className="h-2 w-0.5 bg-[#4a320b]"></div>
+                <div className="h-1 w-0.5 bg-[#4a320b]"></div>
+                <div className="h-3 w-0.5 bg-red-700"></div>
+                <div className="h-1 w-0.5 bg-[#4a320b]"></div>
+                <div className="h-2 w-0.5 bg-[#4a320b]"></div>
+                <div className="h-1 w-0.5 bg-[#4a320b]"></div>
+                <div className="h-2 w-0.5 bg-[#4a320b]"></div>
+              </div>
+
+              {/* Glowing Red Analog Tuning Needle positioned dynamically */}
+              <div
+                className="absolute top-0 bottom-0 w-1 bg-red-600 shadow-[0_0_8px_#ef4444] pointer-events-none transition-all duration-500 ease-out z-10"
+                style={{ left: `${needlePositionPercent}%` }}
+              >
+                <div className="w-2.5 h-2.5 bg-red-600 rounded-full -ml-[3px] shadow-sm"></div>
+              </div>
             </div>
-          )}
+
+            {/* Bottom Control Bar inside Tuner Glass */}
+            <div className="flex items-center justify-between gap-2 pt-1">
+              {/* Giant Mechanical Power-Play Rocker Switch for Seniors */}
+              <button
+                onClick={onTogglePlay}
+                disabled={!currentStation}
+                aria-label={isPlaying ? 'עצור שידור' : 'הפעל שידור'}
+                className={`rounded-xl w-[76px] h-[62px] sm:w-[84px] sm:h-[68px] flex flex-col items-center justify-center shrink-0 border select-none transition-transform ${
+                  !currentStation
+                    ? 'bg-stone-700 opacity-60 cursor-not-allowed border-stone-800'
+                    : isPlaying
+                    ? 'red-rocker-btn border-[#fca5a5]'
+                    : 'green-rocker-btn border-[#86efac]'
+                }`}
+                data-purpose="master-play-toggle"
+              >
+                {isLoading ? (
+                  <Loader2 size={26} className="text-white animate-spin" />
+                ) : (
+                  <span className="text-white text-2xl font-black leading-none drop-shadow">
+                    {isPlaying ? '⏸' : '▶'}
+                  </span>
+                )}
+                <span className="text-white font-extrabold text-[12px] sm:text-[13px] leading-tight mt-0.5 tracking-wider">
+                  {isPlaying ? 'עצור' : isLoading ? 'מכוון' : 'נגן'}
+                </span>
+              </button>
+
+              {/* Station Information & Volume / Status readout */}
+              <div className="flex-1 text-right pr-1 overflow-hidden min-w-0">
+                <div className="flex items-center gap-1.5 justify-start">
+                  <span
+                    className={`w-3 h-3 rounded-full border ${
+                      isPlaying
+                        ? 'bg-emerald-600 border-emerald-800 animate-pulse'
+                        : isLoading
+                        ? 'bg-amber-500 border-amber-700 animate-ping'
+                        : isError
+                        ? 'bg-red-600 border-red-800'
+                        : 'bg-stone-500 border-stone-700'
+                    }`}
+                  ></span>
+                  <span className="text-[12px] sm:text-[13px] font-black text-[#5e410e] uppercase tracking-wide truncate">
+                    {isPlaying
+                      ? 'קליטה מושלמת • FM STEREO'
+                      : isLoading
+                      ? 'מכוון תדר שידור...'
+                      : isError
+                      ? errorMessage || 'תחנה לא זמינה'
+                      : 'הרדיו מוכן לקליטה'}
+                  </span>
+                </div>
+
+                <p className="text-[#13110e] text-lg sm:text-[21px] font-black leading-tight truncate">
+                  {currentStation ? currentStation.name : 'בחר תחנה מהלחצנים למעלה'}
+                </p>
+
+                <p className="text-[#593d0c] text-xs font-bold truncate">
+                  {currentStation ? currentStation.subtitle : 'ווליום מוגבר מותאם למכשיר שמיעה'}
+                </p>
+              </div>
+
+              {/* Favorite Toggle Key & Vintage Tuning Knob */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                {currentStation && (
+                  <button
+                    onClick={handleFavoriteClick}
+                    className={`w-9 h-9 rounded-lg flex items-center justify-center border text-lg shadow-sm transition-transform active:scale-95 ${
+                      isFavorite
+                        ? 'bg-[#2a241b] border-amber-600 text-amber-500'
+                        : 'bg-[#fef3c7] border-[#8e6d2b]/60 text-stone-600 hover:text-amber-600'
+                    }`}
+                    title={isFavorite ? 'מועדף (לחץ להסרה)' : 'שמור במועדפים'}
+                    aria-label={isFavorite ? 'מועדף' : 'שמור במועדפים'}
+                  >
+                    ★
+                  </button>
+                )}
+
+                {/* Vintage Tuning Knobs Graphic Accent */}
+                <div className="flex flex-col items-center justify-center pl-1">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#3b2b11] via-[#d4b068] to-[#241a0a] border border-[#1f1707] shadow flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-[#1e1911] border border-amber-400/50"></div>
+                  </div>
+                  <span className="text-[9px] font-extrabold text-[#4a3411] uppercase font-dial mt-0.5">
+                    TUNING
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Left side in RTL: Mechanical Rocker Switch & Preset Save Key */}
-      <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-        {/* Mechanical Preset Save Key */}
-        {currentStation && (
-          <button
-            onClick={handleFavoriteClick}
-            className={`h-[84px] px-3 sm:px-4 rounded-xl flex flex-col items-center justify-center gap-1 font-black text-xs sm:text-sm border-2 border-b-[5px] border-b-stone-950 transition-all active:translate-y-1 active:border-b-[2px] ${
-              isFavorite
-                ? 'bg-gradient-to-b from-stone-800 to-stone-900 border-amber-400 text-amber-400 shadow-inner ring-1 ring-amber-300'
-                : 'bg-gradient-to-b from-stone-800 to-stone-900 border-stone-700 text-stone-300 hover:text-white'
-            }`}
-            aria-label={isFavorite ? 'מועדף (לחץ להסרה)' : 'שמור במועדפים'}
-          >
-            <Star
-              size={32}
-              strokeWidth={2.5}
-              className={isFavorite ? 'fill-amber-400 text-amber-400' : 'text-stone-300'}
-            />
-            <span className="leading-none">{isFavorite ? 'מועדף' : 'שמור'}</span>
-          </button>
-        )}
-
-        {/* Giant Tactile Power Rocker Switch: 84x84px strictly as required */}
-        <button
-          onClick={onTogglePlay}
-          disabled={!currentStation}
-          className={`w-[84px] h-[84px] rounded-2xl flex flex-col items-center justify-center gap-1 shadow-2xl transition-all border-3 border-stone-950 select-none ${
-            !currentStation
-              ? 'bg-stone-800 border-b-[6px] border-b-stone-950 text-stone-500 opacity-60 cursor-not-allowed'
-              : isPlaying
-              ? 'translate-y-1 bg-gradient-to-b from-red-600 to-red-700 text-white border-b-[2px] border-b-stone-950 ring-4 ring-red-400/50 shadow-inner'
-              : isLoading
-              ? 'bg-gradient-to-b from-amber-400 to-amber-500 text-stone-950 border-b-[4px] border-b-stone-950 ring-4 ring-amber-300 animate-pulse'
-              : isError
-              ? 'bg-gradient-to-b from-red-600 to-red-700 text-white border-b-[5px] border-b-stone-950 ring-4 ring-red-300'
-              : 'bg-gradient-to-b from-emerald-500 to-emerald-600 text-stone-950 hover:from-emerald-400 hover:to-emerald-500 border-b-[6px] border-b-stone-950 ring-4 ring-emerald-300 active:translate-y-1 active:border-b-[2px]'
-          }`}
-          aria-label={isPlaying ? 'עצור שידור' : 'הפעל שידור'}
-        >
-          {isPlaying ? (
-            <>
-              <Pause size={38} strokeWidth={3} className="fill-current" />
-              <span className="text-xs font-black uppercase font-mono tracking-wider">עצור</span>
-            </>
-          ) : isLoading ? (
-            <>
-              <Loader2 size={38} strokeWidth={3} className="animate-spin text-stone-950" />
-              <span className="text-xs font-black uppercase font-mono tracking-wider">טוען</span>
-            </>
-          ) : (
-            <>
-              <Play size={38} strokeWidth={3} className="fill-current translate-x-[-1px]" />
-              <span className="text-xs font-black uppercase font-mono tracking-wider">נגן</span>
-            </>
-          )}
-        </button>
-      </div>
-    </aside>
+    </footer>
   );
 };

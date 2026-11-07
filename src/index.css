@@ -8,9 +8,13 @@
   html, body {
     margin: 0;
     padding: 0;
-    background-color: #1C1917;
+    background-color: #121110;
+    background-image: 
+      radial-gradient(circle at 50% 50%, rgba(30, 27, 24, 0.9) 0%, rgba(10, 9, 8, 1) 100%),
+      repeating-radial-gradient(circle at 17% 23%, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px),
+      repeating-radial-gradient(circle at 83% 77%, rgba(0,0,0,0.4) 0px, rgba(0,0,0,0.4) 1px, transparent 1px, transparent 3px);
     color: #FFFFFF;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Assistant', 'Rubik', system-ui, -apple-system, sans-serif;
     user-select: none;
     -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
@@ -23,36 +27,150 @@
   }
 }
 
-/* 1970s Perforated Speaker Grille Pattern */
-.vintage-speaker-grille {
-  background-color: #292524;
+.font-dial {
+  font-family: 'Share Tech Mono', monospace, monospace;
+}
+
+/* Brushed brass metallic finish */
+.metallic-brass {
+  background: linear-gradient(135deg, #d8ba78 0%, #aa853c 35%, #f6e6b8 50%, #8e6d2b 68%, #cca456 100%);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.6), inset 0 -1px 2px rgba(0,0,0,0.6), 0 3px 6px rgba(0,0,0,0.5);
+}
+
+/* Anodized perforated speaker grille */
+.speaker-grille {
+  background-color: #1a1a18;
   background-image: 
-    radial-gradient(#1c1917 25%, transparent 26%), 
-    radial-gradient(#1c1917 25%, transparent 26%);
-  background-size: 8px 8px;
-  background-position: 0 0, 4px 4px;
+    radial-gradient(#080807 35%, transparent 36%),
+    radial-gradient(#2d2c28 35%, transparent 36%);
+  background-size: 7px 7px;
+  background-position: 0 0, 3.5px 3.5px;
+  box-shadow: inset 0 3px 8px rgba(0,0,0,0.9), inset 0 -2px 5px rgba(255,255,255,0.05);
 }
 
-/* Brushed Aluminum Metallic Trim */
-.brushed-aluminum {
-  background: linear-gradient(180deg, #e7e5e4 0%, #d6d3d1 30%, #a8a29e 70%, #78716c 100%);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.5);
+/* Chunky bakelite button with deep 3D bevel */
+.bakelite-button {
+  background: linear-gradient(180deg, #322e2b 0%, #201e1c 50%, #151413 100%);
+  box-shadow: 
+    0 5px 0 #0d0c0b,
+    0 8px 12px rgba(0,0,0,0.7),
+    inset 0 1.5px 1px rgba(255,255,255,0.2),
+    inset 0 -1.5px 2px rgba(0,0,0,0.6);
+  transition: all 0.08s ease-in-out;
+}
+.bakelite-button:active {
+  transform: translateY(4px);
+  box-shadow: 
+    0 1px 0 #0d0c0b,
+    0 3px 5px rgba(0,0,0,0.8),
+    inset 0 1px 3px rgba(0,0,0,0.8);
 }
 
-/* Glowing LED Jewel Indicators */
-.led-jewel-on-air {
-  background: radial-gradient(circle at 35% 35%, #86efac 0%, #22c55e 50%, #15803d 100%);
-  box-shadow: 0 0 10px #22c55e, 0 0 20px #16a34a, inset 0 1px 2px rgba(255, 255, 255, 0.8);
+/* Depressed/active button state */
+.bakelite-button-active {
+  background: linear-gradient(180deg, #12100f 0%, #1f1d1b 70%, #2a2724 100%) !important;
+  box-shadow: 
+    inset 0 4px 8px rgba(0,0,0,0.9),
+    inset 0 1px 2px rgba(0,0,0,0.8),
+    0 1px 0 rgba(255,255,255,0.1) !important;
+  transform: translateY(3px);
 }
 
-.led-jewel-amber {
-  background: radial-gradient(circle at 35% 35%, #fde68a 0%, #f59e0b 50%, #b45309 100%);
-  box-shadow: 0 0 10px #f59e0b, 0 0 20px #d97706, inset 0 1px 2px rgba(255, 255, 255, 0.8);
+/* Vintage screw head */
+.screw-head {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #a88a4d, #4d3d1e);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.4), 0 2px 3px rgba(0,0,0,0.7);
+  position: relative;
+}
+.screw-head::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: #1e1709;
+  transform: translateY(-50%) rotate(42deg);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.2);
 }
 
-.led-jewel-off {
-  background: radial-gradient(circle at 35% 35%, #78716c 0%, #44403c 60%, #1c1917 100%);
-  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.8);
+/* Vintage jewel LED lamps */
+.jewel-lamp-green {
+  background: radial-gradient(circle at 35% 35%, #a7f3d0 0%, #10b981 40%, #047857 75%, #064e3b 100%);
+  box-shadow: 0 0 12px #10b981, inset 0 2px 2px rgba(255,255,255,0.8), inset 0 -2px 3px rgba(0,0,0,0.7);
+}
+.jewel-lamp-red {
+  background: radial-gradient(circle at 35% 35%, #fecaca 0%, #ef4444 40%, #b91c1c 75%, #7f1d1d 100%);
+  box-shadow: 0 0 10px #ef4444, inset 0 2px 2px rgba(255,255,255,0.8);
+}
+.jewel-lamp-amber {
+  background: radial-gradient(circle at 35% 35%, #fde68a 0%, #f59e0b 40%, #b45309 75%, #78350f 100%);
+  box-shadow: 0 0 10px #f59e0b, inset 0 2px 2px rgba(255,255,255,0.8);
+}
+
+/* Backlit analog radio dial scale window */
+.tuner-window {
+  background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 40%, #fde68a 85%, #fcd34d 100%);
+  box-shadow: 
+    inset 0 4px 10px rgba(0,0,0,0.6),
+    inset 0 -3px 6px rgba(0,0,0,0.3),
+    inset 0 0 25px rgba(245, 158, 11, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+.tuner-window::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.1) 32%, transparent 33%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Mechanical red power/play toggle ribbed switch */
+.red-rocker-btn {
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 50%, #991b1b 100%);
+  box-shadow: 
+    0 6px 0 #5f1010,
+    0 10px 14px rgba(0,0,0,0.8),
+    inset 0 2px 2px rgba(255,255,255,0.5),
+    inset 0 -2px 3px rgba(0,0,0,0.6);
+  transition: all 0.08s ease-in-out;
+}
+.red-rocker-btn:active {
+  transform: translateY(4px);
+  box-shadow: 
+    0 2px 0 #5f1010,
+    0 4px 6px rgba(0,0,0,0.7),
+    inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.green-rocker-btn {
+  background: linear-gradient(180deg, #10b981 0%, #059669 50%, #047857 100%);
+  box-shadow: 
+    0 6px 0 #064e3b,
+    0 10px 14px rgba(0,0,0,0.8),
+    inset 0 2px 2px rgba(255,255,255,0.5),
+    inset 0 -2px 3px rgba(0,0,0,0.6);
+  transition: all 0.08s ease-in-out;
+}
+.green-rocker-btn:active {
+  transform: translateY(4px);
+  box-shadow: 
+    0 2px 0 #064e3b,
+    0 4px 6px rgba(0,0,0,0.7),
+    inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Hide scrollbar for seamless native radio feel */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Safe area insets for Android status bar and bottom navigation bar */
@@ -61,5 +179,5 @@
 }
 
 .safe-pt {
-  padding-top: max(1rem, env(safe-area-inset-top, 1rem));
+  padding-top: max(0.5rem, env(safe-area-inset-top, 0.5rem));
 }

@@ -1,9 +1,9 @@
 import React from 'react';
-import { Play, Pause, Loader2, Star } from 'lucide-react';
 import type { Station, PlaybackState } from '../types/radio';
 
 interface StationCardProps {
   station: Station;
+  index: number;
   isPlaying: boolean;
   playbackState: PlaybackState;
   isFavorite: boolean;
@@ -14,6 +14,7 @@ interface StationCardProps {
 
 export const StationCard: React.FC<StationCardProps> = ({
   station,
+  index,
   isPlaying,
   playbackState,
   isFavorite,
@@ -26,7 +27,7 @@ export const StationCard: React.FC<StationCardProps> = ({
   const isPlayingThis = isCurrentlyActive && playbackState === 'playing';
 
   return (
-    <div
+    <article
       onClick={() => onPlay(station)}
       role="button"
       tabIndex={0}
@@ -36,101 +37,33 @@ export const StationCard: React.FC<StationCardProps> = ({
           onPlay(station);
         }
       }}
-      className={`group relative min-h-[115px] p-4 rounded-2xl cursor-pointer transition-all flex items-center justify-between gap-3 text-start select-none ${
+      className={`relative rounded-xl p-3.5 flex items-center justify-between gap-3 cursor-pointer select-none transition-all min-h-[115px] ${
         isPlayingThis
-          ? 'translate-y-1.5 bg-[#2A241F] border-2 border-amber-500 border-b-[3px] border-b-stone-950 shadow-inner ring-4 ring-amber-400/30'
+          ? 'bg-gradient-to-b from-[#241e17] via-[#1a1713] to-[#12110f] border-2 border-amber-500 shadow-[0_0_18px_rgba(245,158,11,0.25)]'
           : isLoadingThis
-          ? 'translate-y-1 bg-[#28221D] border-2 border-amber-400 border-b-[4px] border-b-stone-950 shadow-md ring-2 ring-amber-300/40'
-          : 'bg-[#221E1B] hover:bg-[#282420] border-2 border-stone-700 border-b-[8px] border-b-stone-950 shadow-xl active:translate-y-1.5 active:border-b-[3px]'
+          ? 'bg-gradient-to-b from-[#241e17] via-[#1a1713] to-[#12110f] border-2 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.2)]'
+          : 'bg-[#1b1917] border-2 border-[#38332c] hover:border-amber-500/60 shadow-[0_4px_8px_rgba(0,0,0,0.6)] active:bg-[#151312]'
       }`}
       aria-label={`תחנת ${station.name}, ${isPlayingThis ? 'מנגנת כעת' : 'לחץ להאזנה'}`}
+      data-purpose={isPlayingThis ? 'station-card-active' : 'station-card'}
     >
-      {/* Right side: Station Info (in RTL, starts on the right) */}
-      <div className="flex-1 min-w-0 pr-1">
-        {/* Top Status Bar with Vintage Jewel LED Indicator */}
-        <div className="flex items-center gap-2.5 mb-1.5">
-          {isPlayingThis ? (
-            <div className="flex items-center gap-1.5 bg-stone-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/50">
-              <span className="w-3.5 h-3.5 rounded-full led-jewel-on-air inline-block flex-shrink-0 animate-pulse"></span>
-              <span className="text-xs font-mono font-black text-emerald-400 tracking-wider">
-                ON AIR
-              </span>
-            </div>
-          ) : isLoadingThis ? (
-            <div className="flex items-center gap-1.5 bg-stone-950/80 px-2.5 py-0.5 rounded-full border border-amber-400/50">
-              <span className="w-3.5 h-3.5 rounded-full led-jewel-amber inline-block flex-shrink-0 animate-pulse"></span>
-              <span className="text-xs font-mono font-black text-amber-300 tracking-wider">
-                TUNING...
-              </span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1.5 bg-stone-950/60 px-2 py-0.5 rounded-full border border-stone-700/60">
-              <span className="w-2.5 h-2.5 rounded-full led-jewel-off inline-block flex-shrink-0"></span>
-              <span className="text-[11px] font-mono font-bold text-stone-400 uppercase tracking-wider">
-                PRESET
-              </span>
-            </div>
-          )}
+      {/* Mechanical Pressed Indicator Strip on edge (Visible when playing/loading) */}
+      {isPlayingThis && (
+        <div className="absolute right-0 top-0 bottom-0 w-2.5 bg-amber-500 rounded-r-xl shadow-[0_0_10px_#f59e0b]"></div>
+      )}
+      {isLoadingThis && (
+        <div className="absolute right-0 top-0 bottom-0 w-2.5 bg-amber-400 rounded-r-xl animate-pulse"></div>
+      )}
 
-          {station.isCurated && !isPlayingThis && !isLoadingThis && (
-            <span className="text-xs px-2 py-0.5 rounded-md bg-stone-800 text-amber-300/90 font-bold border border-amber-500/30">
-              עוגן
-            </span>
-          )}
-
-          {isFavoritesTab && (
-            <span className="text-xs px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-bold border border-amber-400/40">
-              שמור במסך הבית
-            </span>
-          )}
-        </div>
-
-        {/* Primary Station Name (Standard Bold Sans-Serif 26px for AAA Accessibility) */}
-        <h3 className="text-[24px] sm:text-[26px] font-black text-amber-50 leading-tight tracking-tight mb-1 truncate">
-          {station.name}
-        </h3>
-
-        {/* Subtitle / Genre / Description (18px Amber) */}
-        <p className="text-[17px] sm:text-[18px] text-amber-300 font-bold leading-snug line-clamp-1">
-          {station.subtitle}
-        </p>
-
-        {station.originalName && station.originalName !== station.name && (
-          <p className="text-sm text-stone-400 font-medium truncate mt-0.5">
-            {station.originalName}
-          </p>
-        )}
-      </div>
-
-      {/* Left side: Mechanical Preset Push-Key & Favorite Toggle */}
-      <div className="flex items-center gap-2 flex-shrink-0">
-        {/* Tactile Push-Key Beacon */}
-        <div
-          className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center transition-all shadow-md ${
-            isPlayingThis
-              ? 'translate-y-1 bg-gradient-to-b from-amber-400 to-amber-500 text-stone-950 border-2 border-amber-200 border-b-[2px] border-b-stone-950 ring-2 ring-amber-300 shadow-inner'
-              : isLoadingThis
-              ? 'translate-y-0.5 bg-gradient-to-b from-amber-500 to-amber-600 text-stone-950 border-2 border-amber-300 border-b-[3px] border-b-stone-950 animate-pulse'
-              : 'bg-gradient-to-b from-stone-700 to-stone-800 text-amber-100 group-hover:from-stone-650 group-hover:to-stone-750 border-2 border-stone-600 border-b-[5px] border-b-stone-950'
-          }`}
-          aria-hidden="true"
-        >
-          {isPlayingThis ? (
-            <Pause size={34} strokeWidth={3} className="fill-current" />
-          ) : isLoadingThis ? (
-            <Loader2 size={34} strokeWidth={3} className="animate-spin" />
-          ) : (
-            <Play size={34} strokeWidth={3} className="fill-current translate-x-[-1px]" />
-          )}
-        </div>
-
-        {/* Favorite Protection Indicator / Button */}
+      {/* Star Favorite & Play Rocker Cluster (in RTL, situated on the left) */}
+      <div className="flex items-center gap-2.5 z-10 shrink-0">
+        {/* Favorite Star Button */}
         {isFavoritesTab ? (
           <div
-            className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center bg-amber-500/15 border-2 border-amber-400/40 text-amber-400 pointer-events-none shadow-inner"
-            title="תחנה מועדפת שמורה"
+            className="w-13 h-13 min-w-[50px] min-h-[50px] bg-[#2a241b] rounded-lg border-2 border-amber-500/70 flex items-center justify-center text-amber-400 text-2xl shadow-inner pointer-events-none"
+            title="מועדף שמור במסך הבית"
           >
-            <Star size={30} className="fill-amber-400 text-amber-400" />
+            ★
           </div>
         ) : (
           <button
@@ -139,21 +72,80 @@ export const StationCard: React.FC<StationCardProps> = ({
               e.stopPropagation();
               onToggleFavorite(station.id);
             }}
-            className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center transition-all border-2 border-b-[5px] active:translate-y-1 active:border-b-[2px] ${
+            aria-label={isFavorite ? `הסר את ${station.name} מהמועדפים` : `שמור את ${station.name} במועדפים`}
+            className={`w-12 h-12 min-w-[48px] min-h-[48px] rounded-lg border flex items-center justify-center text-2xl shadow-inner active:scale-95 transition-transform ${
               isFavorite
-                ? 'bg-gradient-to-b from-stone-800 to-stone-900 border-amber-500/80 border-b-stone-950 text-amber-400 shadow-md'
-                : 'bg-gradient-to-b from-stone-800 to-stone-900 border-stone-700 border-b-stone-950 text-stone-400 hover:text-amber-300 hover:border-stone-500'
+                ? 'bg-[#2a241b] border-amber-500 text-amber-400'
+                : 'bg-[#221f1c] border-[#474037] text-stone-400 hover:text-amber-300'
             }`}
-            aria-label={isFavorite ? `הסר את ${station.name} מהמועדפים` : `הוסף את ${station.name} למועדפים`}
           >
-            <Star
-              size={32}
-              strokeWidth={2.5}
-              className={isFavorite ? 'fill-amber-400 text-amber-400' : 'text-stone-400'}
-            />
+            ★
           </button>
         )}
+
+        {/* Play/Speaker State Indicator */}
+        {isPlayingThis ? (
+          <div className="w-13 h-13 min-w-[50px] min-h-[50px] bg-gradient-to-b from-amber-600 to-amber-700 rounded-lg border border-amber-300 flex flex-col items-center justify-center shadow-lg">
+            <span className="text-black text-2xl font-black">🔊</span>
+          </div>
+        ) : isLoadingThis ? (
+          <div className="w-13 h-13 min-w-[50px] min-h-[50px] bg-gradient-to-b from-amber-500 to-amber-600 rounded-lg border border-amber-300 flex flex-col items-center justify-center shadow-lg animate-pulse">
+            <span className="text-black text-xl font-black font-dial">⏳</span>
+          </div>
+        ) : (
+          <div
+            className="w-12 h-12 min-w-[48px] min-h-[48px] bg-[#2c2824] rounded-lg border border-[#4f483d] flex items-center justify-center text-amber-200 text-2xl shadow active:scale-95 transition-transform group-hover:border-amber-400/60"
+            aria-hidden="true"
+          >
+            ▶
+          </div>
+        )}
       </div>
-    </div>
+
+      {/* Station Information (Huge Senior-Friendly Typography) */}
+      <div className="flex-1 pr-1 text-right min-w-0">
+        <div className="flex items-center gap-2 mb-0.5">
+          {isPlayingThis ? (
+            <>
+              <span className="bg-amber-400 text-black text-xs font-black px-2 py-0.5 rounded font-dial tracking-wider">
+                PRESET {index + 1} • מנגן
+              </span>
+              <div className="jewel-lamp-green w-2.5 h-2.5 rounded-full inline-block animate-ping"></div>
+            </>
+          ) : isLoadingThis ? (
+            <>
+              <span className="bg-amber-500 text-black text-xs font-black px-2 py-0.5 rounded font-dial tracking-wider animate-pulse">
+                PRESET {index + 1} • טוען...
+              </span>
+              <div className="jewel-lamp-amber w-2.5 h-2.5 rounded-full inline-block animate-ping"></div>
+            </>
+          ) : (
+            <span className="bg-[#2c2823] text-amber-200/80 text-xs font-bold px-2 py-0.5 rounded font-dial">
+              PRESET {index + 1}
+            </span>
+          )}
+
+          {station.isCurated && !isPlayingThis && !isLoadingThis && (
+            <span className="text-[11px] text-amber-300/80 bg-stone-800/80 px-1.5 py-0.2 rounded border border-amber-500/30">
+              מומלץ
+            </span>
+          )}
+        </div>
+
+        <h2 className="text-2xl sm:text-[26px] font-black text-white leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] truncate">
+          {station.name}
+        </h2>
+
+        <p className="text-amber-300 text-base sm:text-lg font-bold leading-tight mt-0.5 truncate">
+          {station.subtitle}
+        </p>
+
+        {station.originalName && station.originalName !== station.name && (
+          <span className="text-xs text-amber-200/60 font-semibold font-dial truncate block mt-0.5">
+            {station.originalName}
+          </span>
+        )}
+      </div>
+    </article>
   );
 };

@@ -1,123 +1,135 @@
 import React from 'react';
-import { Radio, Star } from 'lucide-react';
 import type { ActiveTab } from '../types/radio';
 
 interface HeaderProps {
   activeTab: ActiveTab;
   onTabChange: (tab: ActiveTab) => void;
   favoritesCount: number;
+  isPlaying?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   activeTab,
   onTabChange,
-  favoritesCount
+  favoritesCount,
+  isPlaying = false
 }) => {
   return (
-    <header className="sticky top-0 z-30 bg-[#24201D] border-b-4 border-stone-950 shadow-2xl safe-pt">
-      {/* 1970s Perforated Speaker Grille Area */}
-      <div className="vintage-speaker-grille px-3 py-2.5 border-b-2 border-stone-800/80">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          {/* Vintage Radio Logo Plate */}
-          <div className="flex items-center gap-3 bg-[#1C1917]/90 px-3.5 py-1.5 rounded-xl border border-stone-700/80 shadow-md">
-            <div className="w-10 h-10 rounded-lg bg-amber-500/20 border-2 border-amber-500/60 flex items-center justify-center text-amber-400">
-              <Radio size={26} strokeWidth={2.5} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-amber-100 flex items-center gap-1.5 leading-none">
-                  הרדיו של אבא
-                </h1>
-                <span className="text-[10px] tracking-widest uppercase font-mono px-1.5 py-0.5 rounded bg-stone-800 text-amber-400/90 border border-amber-500/30">
-                  TRANSISTOR
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm font-bold text-amber-300/80 mt-0.5">
-                רדיו נייד קלאסי • ללא פרסומות • בחירה מיידית
-              </p>
-            </div>
+    <div>
+      {/* Top Speaker And Branding Header */}
+      <header className="relative pt-3 px-3 pb-2 border-b-4 border-[#0c0b0a] bg-[#11100f] safe-pt">
+        {/* Decorative chassis corner screws & ON AIR indicator */}
+        <div className="flex justify-between items-center px-1 mb-2">
+          <div className="screw-head"></div>
+          
+          {/* ON AIR Indicator Lamp */}
+          <div className="flex items-center gap-2 bg-[#090807] px-3.5 py-1 rounded-full border border-[#3a352f] shadow-inner">
+            <div
+              className={`w-3.5 h-3.5 rounded-full ${
+                isPlaying ? 'jewel-lamp-green animate-pulse' : 'jewel-lamp-amber'
+              }`}
+            ></div>
+            <span className="text-[14px] font-black tracking-wider text-emerald-400 font-dial uppercase">
+              {isPlaying ? 'ON AIR • משדר כעת' : 'STANDBY • מוכן'}
+            </span>
           </div>
 
-          {/* Glowing ON AIR Vintage Indicator */}
-          <div className="flex items-center gap-2 bg-[#1C1917]/90 border border-stone-700 px-3 py-1.5 rounded-xl shadow-inner">
-            <span className="w-3.5 h-3.5 rounded-full led-jewel-on-air animate-pulse"></span>
-            <span className="text-xs sm:text-sm font-black tracking-wider text-emerald-400 uppercase font-mono">
-              ON AIR
+          <div className="screw-head"></div>
+        </div>
+
+        {/* Anodized Metallic Speaker Grille Texture Area */}
+        <div className="speaker-grille h-14 w-full rounded-md border-2 border-[#3d362c] flex items-center justify-center p-1 relative shadow-inner">
+          {/* Embossed Champagne-Brass Badge: הרדיו של אבא */}
+          <div className="metallic-brass rounded px-4 py-1.5 flex items-center gap-3 border border-[#ffe699] shadow-lg">
+            <span className="text-[#302107] font-black text-xl tracking-tight leading-none drop-shadow-[0_1px_0_rgba(255,255,255,0.7)]">
+              📻 הרדיו של אבא
+            </span>
+            <span className="text-[#593d0c] font-black text-[11px] uppercase tracking-widest border-s-2 border-[#593d0c]/40 ps-2 leading-none font-dial">
+              TRANSISTOR • SOLID STATE
             </span>
           </div>
         </div>
-      </div>
 
-      {/* Brushed Metallic Band-Selector Switch Chassis */}
-      <div className="bg-[#1C1917] px-3 pt-3 pb-3 border-t border-stone-700">
-        <nav
-          className="grid grid-cols-3 gap-2.5 max-w-7xl mx-auto"
-          aria-label="בורר תדרים מכני (Mechanical Band Selector)"
-        >
-          {/* Tab 1: Favorites Push-Button */}
+        {/* Sub-label: Clear instructional text for senior users */}
+        <div className="text-center mt-2">
+          <p className="text-amber-200/90 text-sm font-semibold tracking-wide">
+            לחצו על כפתור התחנה להשמעה מיידית בקול ברור
+          </p>
+        </div>
+      </header>
+
+      {/* 1970s Heavy Mechanical Push Buttons (Band Selectors) */}
+      <section className="p-3 bg-[#131210] border-b-2 border-[#2b2722]" data-purpose="band-selector">
+        <div className="grid grid-cols-3 gap-2.5" role="tablist">
+          {/* Button 1: מועדפים */}
           <button
             onClick={() => onTabChange('favorites')}
-            className={`min-h-[76px] sm:min-h-[84px] px-2 py-2 rounded-xl flex flex-col items-center justify-center gap-1 transition-all text-center select-none ${
+            aria-selected={activeTab === 'favorites'}
+            className={`${
               activeTab === 'favorites'
-                ? 'translate-y-1 bg-gradient-to-b from-amber-300 to-amber-500 text-stone-950 font-black border-2 border-amber-200 border-b-[2px] border-b-stone-950 shadow-inner ring-2 ring-amber-300'
-                : 'bg-gradient-to-b from-stone-800 to-stone-900 text-stone-200 hover:from-stone-750 hover:to-stone-850 border-2 border-stone-700 border-b-[6px] border-b-stone-950 shadow-lg active:translate-y-1 active:border-b-[2px] font-bold'
-            }`}
-            aria-pressed={activeTab === 'favorites'}
+                ? 'bakelite-button-active border-2 border-amber-500/80'
+                : 'bakelite-button border-2 border-[#3d3830]'
+            } rounded-lg py-3 px-2 flex flex-col items-center justify-center transition-transform`}
+            role="tab"
           >
-            <div className="flex items-center justify-center gap-1.5">
-              <Star
-                size={26}
-                strokeWidth={2.5}
-                className={
-                  activeTab === 'favorites'
-                    ? 'fill-stone-950 text-stone-950'
-                    : 'text-amber-400 fill-amber-400/30'
-                }
-              />
-              {favoritesCount > 0 && (
-                <span
-                  className={`text-xs px-2 py-0.5 rounded-full font-black ${
-                    activeTab === 'favorites'
-                      ? 'bg-stone-950 text-amber-400'
-                      : 'bg-amber-500/20 text-amber-300'
-                  }`}
-                >
-                  {favoritesCount}
-                </span>
-              )}
+            <div className="flex items-center gap-1">
+              <span className="text-2xl text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]">★</span>
+              <span className="text-xs font-bold bg-amber-500 text-black px-1.5 py-0.5 rounded-full font-dial">
+                {favoritesCount}
+              </span>
             </div>
-            <span className="text-xl sm:text-2xl font-black leading-none">מועדפים</span>
+            <span
+              className={`text-xl font-black tracking-tight mt-1 leading-tight ${
+                activeTab === 'favorites' ? 'text-amber-300' : 'text-gray-200'
+              }`}
+            >
+              מועדפים
+            </span>
           </button>
 
-          {/* Tab 2: Greek Hits Push-Button */}
+          {/* Button 2: להיטי יוון */}
           <button
             onClick={() => onTabChange('greece')}
-            className={`min-h-[76px] sm:min-h-[84px] px-2 py-2 rounded-xl flex flex-col items-center justify-center gap-1 transition-all text-center select-none ${
+            aria-selected={activeTab === 'greece'}
+            className={`${
               activeTab === 'greece'
-                ? 'translate-y-1 bg-gradient-to-b from-amber-300 to-amber-500 text-stone-950 font-black border-2 border-amber-200 border-b-[2px] border-b-stone-950 shadow-inner ring-2 ring-amber-300'
-                : 'bg-gradient-to-b from-stone-800 to-stone-900 text-stone-200 hover:from-stone-750 hover:to-stone-850 border-2 border-stone-700 border-b-[6px] border-b-stone-950 shadow-lg active:translate-y-1 active:border-b-[2px] font-bold'
-            }`}
-            aria-pressed={activeTab === 'greece'}
+                ? 'bakelite-button-active border-2 border-amber-500/80'
+                : 'bakelite-button border-2 border-[#3d3830]'
+            } rounded-lg py-3 px-2 flex flex-col items-center justify-center transition-transform`}
+            role="tab"
           >
             <span className="text-2xl leading-none">🇬🇷</span>
-            <span className="text-xl sm:text-2xl font-black leading-none">להיטי יוון</span>
+            <span
+              className={`text-xl font-bold tracking-tight mt-1 leading-tight ${
+                activeTab === 'greece' ? 'text-amber-300' : 'text-gray-200'
+              }`}
+            >
+              להיטי יוון
+            </span>
           </button>
 
-          {/* Tab 3: Israel Radio Push-Button */}
+          {/* Button 3: רדיו ישראל */}
           <button
             onClick={() => onTabChange('israel')}
-            className={`min-h-[76px] sm:min-h-[84px] px-2 py-2 rounded-xl flex flex-col items-center justify-center gap-1 transition-all text-center select-none ${
+            aria-selected={activeTab === 'israel'}
+            className={`${
               activeTab === 'israel'
-                ? 'translate-y-1 bg-gradient-to-b from-amber-300 to-amber-500 text-stone-950 font-black border-2 border-amber-200 border-b-[2px] border-b-stone-950 shadow-inner ring-2 ring-amber-300'
-                : 'bg-gradient-to-b from-stone-800 to-stone-900 text-stone-200 hover:from-stone-750 hover:to-stone-850 border-2 border-stone-700 border-b-[6px] border-b-stone-950 shadow-lg active:translate-y-1 active:border-b-[2px] font-bold'
-            }`}
-            aria-pressed={activeTab === 'israel'}
+                ? 'bakelite-button-active border-2 border-amber-500/80'
+                : 'bakelite-button border-2 border-[#3d3830]'
+            } rounded-lg py-3 px-2 flex flex-col items-center justify-center transition-transform`}
+            role="tab"
           >
             <span className="text-2xl leading-none">🇮🇱</span>
-            <span className="text-xl sm:text-2xl font-black leading-none">רדיו ישראל</span>
+            <span
+              className={`text-xl font-bold tracking-tight mt-1 leading-tight ${
+                activeTab === 'israel' ? 'text-amber-300' : 'text-gray-200'
+              }`}
+            >
+              רדיו ישראל
+            </span>
           </button>
-        </nav>
-      </div>
-    </header>
+        </div>
+      </section>
+    </div>
   );
 };
