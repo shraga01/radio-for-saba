@@ -64,10 +64,8 @@ export function App() {
   // Map of all stations by ID for fast lookup
   const allStationsMap = useMemo(() => {
     const map = new Map<string, Station>();
-    // Curated first
     CURATED_ISRAEL_STATIONS.forEach(s => map.set(s.id, s));
     CURATED_GREECE_STATIONS.forEach(s => map.set(s.id, s));
-    // Supplemental
     israelStations.forEach(s => map.set(s.id, s));
     greeceStations.forEach(s => map.set(s.id, s));
     return map;
@@ -109,66 +107,70 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-white flex flex-col font-sans select-none" dir="rtl">
-      {/* Top Header with 3 Giant Navigation Tabs */}
+    <div
+      className="min-h-screen bg-[#1C1917] text-white flex flex-col font-sans select-none border-x-4 border-stone-800"
+      dir="rtl"
+    >
+      {/* Top 1970s Transistor Header & Speaker Grille */}
       <Header
         activeTab={activeTab}
         onTabChange={setActiveTab}
         favoritesCount={favoriteIds.length}
       />
 
-      {/* Sub-Filter Bar (for Greece and Israel tabs) */}
+      {/* Mechanical Band-Selector Filter Bar */}
       <FilterBar
         activeTab={activeTab}
         currentFilter={activeTab === 'greece' ? greeceFilter : israelFilter}
         onFilterChange={activeTab === 'greece' ? setGreeceFilter : setIsraelFilter}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 px-3 sm:px-6 py-4 pb-[150px] max-w-7xl mx-auto w-full">
-        {/* Tab Header Banner */}
+      {/* Main Preset Tuner Content */}
+      <main className="flex-1 px-3 sm:px-6 py-4 pb-[155px] max-w-7xl mx-auto w-full">
+        {/* Retro Header Plate */}
         <div className="flex items-center justify-between mb-4 px-1">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-2">
-              {activeTab === 'favorites' && '⭐ התחנות המועדפות שלך'}
-              {activeTab === 'greece' && '🇬🇷 מיטב תחנות הרדיו מיוון'}
-              {activeTab === 'israel' && '🇮🇱 תחנות הרדיו המובילות בישראל'}
+            <h2 className="text-2xl sm:text-3xl font-black text-amber-100 flex items-center gap-2">
+              {activeTab === 'favorites' && '⭐ לחצני מועדפים שמורים'}
+              {activeTab === 'greece' && '🇬🇷 שידורי יוון הפופולריים'}
+              {activeTab === 'israel' && '🇮🇱 שידורי ישראל המובילים'}
             </h2>
-            <p className="text-base sm:text-lg text-slate-300 font-medium mt-0.5">
-              {activeTab === 'favorites' && 'לחץ על כל תחנה להאזנה מיידית ללא המתנה'}
-              {activeTab === 'greece' && 'התחנות האהובות מיוון עם שמות ברורים בעברית'}
-              {activeTab === 'israel' && 'חדשות, אקטואליה ומוזיקה ישראלית איכותית'}
+            <p className="text-base sm:text-lg text-amber-300/80 font-bold mt-0.5">
+              {activeTab === 'favorites' && 'לחץ על כל מקש להשמעה מיידית (מוגן מפני מחיקה בשוגג)'}
+              {activeTab === 'greece' && 'התחנות הנבחרות מיוון בשמות עבריים ברורים'}
+              {activeTab === 'israel' && 'חדשות, אקטואליה ומוזיקה ישראלית באיכות מעולה'}
             </p>
           </div>
 
           {isLoadingStations && (
-            <div className="text-xs text-amber-300 font-bold bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-400/30 flex items-center gap-1.5 animate-pulse">
-              מעדכן תחנות...
+            <div className="text-xs text-amber-300 font-black bg-stone-900/90 px-3 py-1.5 rounded-lg border border-amber-500/40 flex items-center gap-1.5 shadow-inner">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+              סורק תחנות...
             </div>
           )}
         </div>
 
         {/* Empty State for Favorites */}
         {activeTab === 'favorites' && displayedStations.length === 0 ? (
-          <div className="bg-[#1E293B] border-2 border-dashed border-slate-600 rounded-3xl p-8 text-center my-6 flex flex-col items-center justify-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center">
+          <div className="bg-[#24201D] border-3 border-dashed border-stone-700 rounded-3xl p-8 text-center my-6 flex flex-col items-center justify-center gap-4 shadow-2xl">
+            <div className="w-20 h-20 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center border-2 border-amber-500/40">
               <Radio size={44} />
             </div>
-            <h3 className="text-2xl font-bold text-white">אין תחנות ברשימת המועדפים</h3>
-            <p className="text-lg text-slate-300 max-w-md">
-              תוכל לסמן כל תחנה באמצעות הכוכב כדי שתוצג כאן, או לשחזר את התחנות המובילות בלחיצה אחת:
+            <h3 className="text-2xl font-black text-amber-100">אין תחנות שמורות כרגע</h3>
+            <p className="text-lg text-stone-300 font-bold max-w-md">
+              תוכל לסמן תחנות בכוכב מתוך טאב יוון או ישראל, או לשחזר את תחנות העוגן בלחיצה אחת:
             </p>
             <button
               onClick={restoreDefaultFavorites}
-              className="min-h-[64px] px-6 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xl flex items-center gap-2 shadow-lg transition-transform active:scale-95"
+              className="min-h-[64px] px-6 py-3 rounded-2xl bg-gradient-to-b from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-black text-xl flex items-center gap-2 shadow-xl border-2 border-amber-200 border-b-[5px] border-b-stone-950 active:translate-y-1 active:border-b-[2px]"
             >
               <RotateCcw size={26} strokeWidth={2.5} />
-              שחזר תחנות נבחרות
+              שחזר תחנות עוגן
             </button>
           </div>
         ) : (
-          /* Station Grid: 1 column on mobile, 2 columns on tablet/desktop */
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+          /* Bakelite Preset Key Grid: 1 column on mobile, 2 columns on tablet/desktop */
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
             {displayedStations.map((station) => (
               <StationCard
                 key={station.id}
@@ -185,7 +187,7 @@ export function App() {
         )}
       </main>
 
-      {/* Persistent Giant Bottom Player (Height 125px) */}
+      {/* Persistent Backlit Analog Tuner Dial & Power Rocker Switch (Height 125px) */}
       <BottomPlayer
         currentStation={currentStation}
         playbackState={playbackState}
