@@ -25,6 +25,21 @@
   button, a {
     touch-action: manipulation;
   }
+
+  #root {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    box-sizing: border-box;
+  }
+
+  [data-purpose="radio-cabinet"] {
+    width: 100%;
+    max-width: 480px;
+    min-width: 340px;
+    box-sizing: border-box;
+  }
 }
 
 .font-dial {

@@ -139,10 +139,10 @@ export const BottomPlayer: React.FC<BottomPlayerProps> = ({
 
   return (
     <footer
-      className="fixed bottom-0 start-0 end-0 z-50 bg-[#181614] border-t-4 border-[#a68643] shadow-[0_-10px_35px_rgba(0,0,0,0.9)] px-2 sm:px-4 py-2 safe-pb flex justify-center"
+      className="fixed bottom-0 start-0 end-0 z-50 bg-[#181614] border-t-4 border-[#a68643] shadow-[0_-10px_35px_rgba(0,0,0,0.9)] px-2 sm:px-4 py-2 safe-pb flex justify-center w-full box-border"
       data-purpose="analog-player-dock"
     >
-      <div className="w-full max-w-[480px] sm:max-w-xl">
+      <div className="w-full max-w-[480px] min-w-[340px] box-border">
         {/* Brass Frame Bezel around Tuner Window */}
         <div className="p-1 rounded-xl bg-gradient-to-r from-[#947437] via-[#f7e3a6] to-[#80632a] shadow-md">
           {/* Recessed Backlit Tungsten Cream/Amber Dial Window */}

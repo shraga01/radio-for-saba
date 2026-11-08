@@ -38,8 +38,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   const filters = activeTab === 'greece' ? GREECE_FILTERS : ISRAEL_FILTERS;
 
   return (
-    <div className="px-3 pt-2 pb-1 bg-[#131210] border-b border-[#2b2722]">
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+    <div className="w-full px-3 pt-2 pb-1 bg-[#131210] border-b border-[#2b2722] box-border">
+      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 w-full box-border">
         {filters.map(item => {
           const isSelected = currentFilter === item.id;
           return (

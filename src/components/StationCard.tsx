@@ -38,7 +38,7 @@ export const StationCard: React.FC<StationCardProps> = ({
           onPlay(station);
         }
       }}
-      className={`relative rounded-xl p-3.5 flex items-center justify-between gap-3 cursor-pointer select-none transition-all min-h-[115px] ${
+      className={`w-full box-border relative rounded-xl p-3.5 flex items-center justify-between gap-3 cursor-pointer select-none transition-all min-h-[115px] ${
         isPlayingThis
           ? 'bg-gradient-to-b from-[#241e17] via-[#1a1713] to-[#12110f] border-2 border-amber-500 shadow-[0_0_18px_rgba(245,158,11,0.25)]'
           : isLoadingThis

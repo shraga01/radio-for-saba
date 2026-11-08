@@ -137,7 +137,7 @@ export function App() {
 
   return (
     <div
-      className="w-full max-w-[480px] sm:max-w-xl min-h-screen bg-[#171513] border-x-[10px] sm:border-[10px] border-[#382113] shadow-[0_15px_50px_rgba(0,0,0,0.95)] flex flex-col relative pb-36 mx-auto"
+      className="w-full max-w-[480px] min-w-[340px] min-h-screen bg-[#171513] border-x-[10px] sm:border-[10px] border-[#382113] shadow-[0_15px_50px_rgba(0,0,0,0.95)] flex flex-col relative pb-36 mx-auto box-border"
       data-purpose="radio-cabinet"
       dir="rtl"
     >
@@ -157,10 +157,10 @@ export function App() {
       />
 
       {/* Station Presets List */}
-      <main className="flex-1 p-3 space-y-3.5 overflow-y-auto" data-purpose="station-list">
+      <main className="flex-1 w-full p-3 flex flex-col gap-3.5 items-stretch overflow-y-auto box-border" data-purpose="station-list">
         {/* Sub-header status if loading */}
         {isLoadingStations && (
-          <div className="text-center py-1">
+          <div className="text-center py-1 w-full">
             <span className="text-xs font-bold text-amber-300/80 bg-stone-900/80 px-3 py-1 rounded-full border border-amber-500/30 font-dial animate-pulse">
               SCANNING FREQUENCIES • סורק תחנות ברקע...
             </span>
@@ -169,7 +169,7 @@ export function App() {
 
         {/* Empty State for Favorites */}
         {activeTab === 'favorites' && displayedStations.length === 0 ? (
-          <div className="bg-[#1b1917] border-2 border-dashed border-[#474037] rounded-2xl p-6 text-center my-6 flex flex-col items-center justify-center gap-3">
+          <div className="w-full box-border bg-[#1b1917] border-2 border-dashed border-[#474037] rounded-2xl p-6 text-center my-6 flex flex-col items-center justify-center gap-3">
             <div className="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/40">
               <Radio size={36} />
             </div>

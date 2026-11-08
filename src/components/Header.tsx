@@ -15,9 +15,9 @@ export const Header: React.FC<HeaderProps> = ({
   isPlaying = false
 }) => {
   return (
-    <div>
+    <div className="w-full box-border">
       {/* Top Speaker And Branding Header */}
-      <header className="relative pt-3 px-3 pb-2 border-b-4 border-[#0c0b0a] bg-[#11100f] safe-pt">
+      <header className="w-full relative pt-3 px-3 pb-2 border-b-4 border-[#0c0b0a] bg-[#11100f] safe-pt box-border">
         {/* Decorative chassis corner screws & ON AIR indicator */}
         <div className="flex justify-between items-center px-1 mb-2">
           <div className="screw-head"></div>
@@ -59,8 +59,8 @@ export const Header: React.FC<HeaderProps> = ({
       </header>
 
       {/* 1970s Heavy Mechanical Push Buttons (Band Selectors) */}
-      <section className="p-3 bg-[#131210] border-b-2 border-[#2b2722]" data-purpose="band-selector">
-        <div className="grid grid-cols-3 gap-2.5" role="tablist">
+      <section className="w-full p-3 bg-[#131210] border-b-2 border-[#2b2722] box-border" data-purpose="band-selector">
+        <div className="grid grid-cols-3 w-full gap-3" role="tablist">
           {/* Button 1: מועדפים */}
           <button
             onClick={() => onTabChange('favorites')}
@@ -69,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({
               activeTab === 'favorites'
                 ? 'bakelite-button-active border-2 border-amber-500/80'
                 : 'bakelite-button border-2 border-[#3d3830]'
-            } rounded-lg py-3 px-2 flex flex-col items-center justify-center transition-transform`}
+            } w-full box-border rounded-lg py-3 px-2 flex flex-col items-center justify-center transition-transform`}
             role="tab"
           >
             <div className="flex items-center gap-1">
@@ -95,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({
               activeTab === 'greece'
                 ? 'bakelite-button-active border-2 border-amber-500/80'
                 : 'bakelite-button border-2 border-[#3d3830]'
-            } rounded-lg py-3 px-2 flex flex-col items-center justify-center transition-transform`}
+            } w-full box-border rounded-lg py-3 px-2 flex flex-col items-center justify-center transition-transform`}
             role="tab"
           >
             <span className="text-2xl leading-none">🇬🇷</span>
@@ -116,7 +116,7 @@ export const Header: React.FC<HeaderProps> = ({
               activeTab === 'israel'
                 ? 'bakelite-button-active border-2 border-amber-500/80'
                 : 'bakelite-button border-2 border-[#3d3830]'
-            } rounded-lg py-3 px-2 flex flex-col items-center justify-center transition-transform`}
+            } w-full box-border rounded-lg py-3 px-2 flex flex-col items-center justify-center transition-transform`}
             role="tab"
           >
             <span className="text-2xl leading-none">🇮🇱</span>
