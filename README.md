@@ -1,32 +1,69 @@
-# React + TypeScript + Vite
+# הרדיו של סבא יצחק 📻
+### Vintage Portable Transistor Radio • Solid State Edition
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+אפליקציית רדיו טרנסיסטור רטרו מונגשת ברמת AAA לבני הגיל השלישי, בעיצוב אותנטי של רדיו טרנסיסטור משנות ה-70/80 עם מארז עץ אגוז, לוחית פליז מוזהבת, סקאלת תדרים אנלוגית מוארת, וכפתור כוונון (TUNING) סיבובי אינטראקטיבי.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ✨ תכונות מרכזיות
 
-## React Compiler
+* **נגישות מקסימלית לגיל השלישי (AAA Accessibility):**
+  * כרטיסי תחנות בגובה של לפחות 115px עם אזורי מגע ענקיים.
+  * כיתוב עברי ברור בגופן קריא ועבה בגודל 26px+.
+  * מתג הפעלה/עצירה מכני ענק (84x84px) בצבעי ירוק/אדום.
+  * אפס פרסומות, אפס חלונות קופצים, ממשק RTL מלא.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* **תחנות רדיו מובחרות ומסוננות בלבד:**
+  * 🇮🇱 **רדיו ישראל:** כל התחנות הפופולריות בישראל (כאן ב', גלגלצ, גלי צה"ל, 103FM, רדיו לב המדינה, אקו 99FM, כאן גימל ועוד).
+  * 🇬🇷 **להיטי יוון:** סינון קפדני של מוזיקה יוונית אותנטית בלבד (לאיקה, רבטיקו, אנטכנו, דימוטיקה, פולק ולהיטים ביוונית), ללא שירים לועזיים או תחנות שיחות בלבד.
+  * ⭐ **מועדפים:** רשימת תחנות מועדפות בלחיצה אחת עם מנגנון הגנה מפני מחיקה מקרית.
 
-## Expanding the Oxlint configuration
+* **חוויית רדיו טרנסיסטור רטרו אותנטית:**
+  * **חלון סקאלת FM אנלוגי מואר:** נורת טונגסטן חמה עם מחט כוונון אדומה הנעה דינמית בהתאם לתדר התחנה.
+  * **כפתור כוונון (TUNING) סיבובי חי:**
+    * לחיצה / הקשה מקדמת מיד לתחנה הבאה ומסובבת את החוגה ב-`+30°`.
+    * גרירה אופקית (Touch Swipe) מאפשרת מעבר קדימה/אחורה בין התחנות.
+    * חיווי ויזואלי (Notch) מסתובב, רטט עדין (Haptic feedback), וגלילה חלקה של כרטיס התחנה הפעילה.
+  * לוחית פליז מוברשת: `📻 הרדיו של סבא יצחק | TRANSISTOR • SOLID STATE`.
+  * נורית חיווי תכשיט `ON AIR` ירוקה פועמת בזמן שידור.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+* **מנוע אודיו מתקדם ועצמאי:**
+  * תמיכה כפולה ב-MP3/AAC רגיל ובשידורי HLS (`.m3u8`) באמצעות `hls.js`.
+  * ניגון רציף ברקע במכשיר אנדרואיד עם שליטה מלאה ממסך הנעילה (MediaSession API).
+  * מנגנון התאוששות וריפוי עצמי (Self-Healing) מתקלות רשת ללא צורך בהתערבות המשתמש.
+  * טיפול תקין בשיחות טלפון ומעברי Audio Focus.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+---
+
+## 🛠️ טכנולוגיות
+
+* **Frontend:** React 19, TypeScript, Vite, Tailwind CSS
+* **Icons:** Lucide React
+* **Mobile Runtime:** Capacitor 8 (Android)
+* **Audio Engine:** HTML5 Audio + HLS.js
+* **Lock Screen & Media Controls:** `@capgo/capacitor-media-session`
+
+---
+
+## 🚀 הרצה והתקנה
+
+### הרצה מקומית בדפדפן:
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+### בנייה ובדיקה:
+```bash
+npm run lint
+npm run build
+```
+
+### סנכרון ובניית APK לאנדרואיד:
+```bash
+npx cap sync android
+cd android
+./gradlew assembleDebug
+```
+קובץ ה-APK נוצר בנתיב:
+`android/app/build/outputs/apk/debug/app-debug.apk`
